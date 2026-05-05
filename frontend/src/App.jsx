@@ -3,6 +3,9 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './hooks/AuthContext';
 import AuthPage from './pages/AuthPage';
 import TelegramVerifyPage from './pages/TelegramVerifyPage';
+import GamePage from './pages/GamePage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
 
 function ProtectedRoute({ children }) {
@@ -23,10 +26,13 @@ function AppRoutes() {
   return (
     <>
       <Routes>
-        <Route path="/auth" element={user ? <Navigate to="/admin" replace /> : <AuthPage />} />
+        <Route path="/auth" element={user ? <Navigate to="/game" replace /> : <AuthPage />} />
         <Route path="/verify-telegram" element={<ProtectedRoute><TelegramVerifyPage /></ProtectedRoute>} />
+        <Route path="/game" element={<ProtectedRoute><GamePage /></ProtectedRoute>} />
+        <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
-        <Route path="*" element={<Navigate to="/auth" replace />} />
+        <Route path="*" element={<Navigate to={user ? '/game' : '/auth'} replace />} />
       </Routes>
     </>
   );

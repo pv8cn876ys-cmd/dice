@@ -23,6 +23,9 @@ export default function Navbar() {
               <NavLink to="/game" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>🎲 Play</NavLink>
               <NavLink to="/leaderboard" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>🏆 Ranks</NavLink>
               <NavLink to="/profile" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>👤 Profile</NavLink>
+              {!userData?.telegramVerified && (
+                <NavLink to="/verify-telegram" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>🔐 Verify</NavLink>
+              )}
               {userData?.role === 'admin' && (
                 <NavLink to="/admin" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>⚙️ Admin</NavLink>
               )}

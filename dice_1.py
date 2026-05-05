@@ -257,8 +257,8 @@ def show_forced_outcomes(store):
         print('No pending forced outcomes.')
 
 
-async def run_telegram_mode(store):
-    print('\n=== Telegram Dice Mode ===')
+def ask_telegram_config():
+    print('\n=== Telegram API Configuration ===')
     api_id = input(f'API ID [{API_ID}]: ').strip() or str(API_ID)
     api_hash = input(f'API HASH [{API_HASH}]: ').strip() or API_HASH
     phone = input(f'Phone [{PHONE}]: ').strip() or PHONE
@@ -266,13 +266,24 @@ async def run_telegram_mode(store):
 
     if not api_id.isdigit():
         print('API ID must be numeric.')
-        return
-    client = TelegramClient('dice_session', int(api_id), api_hash)
+        return None
+
+    return {
+        'apiId': int(api_id),
+        'apiHash': api_hash,
+        'phone': phone,
+        'groupLink': group_link,
+    }
+
+
+async def run_telegram_mode(store, config):
+    print('\n=== Telegram Dice Mode ===')
+    client = TelegramClient('dice_session', config['apiId'], config['apiHash'])
 
     try:
-        await client.start(phone)
+        await client.start(config['phone'])
         print('✅ Connected to Telegram')
-        chat = await client.get_entity(group_link)
+        chat = await client.get_entity(config['groupLink'])
 
         telegram_id = input('Enter your Telegram ID for stats (optional): ').strip()
         key, user = (find_user_by_telegram(store, telegram_id) if telegram_id else (None, None))
@@ -344,7 +355,9 @@ def main():
         elif choice == '6':
             show_forced_outcomes(store)
         elif choice == '7':
-            asyncio.run(run_telegram_mode(store))
+            config = ask_telegram_config()
+            if config:
+                asyncio.run(run_telegram_mode(store, config))
         elif choice == '0':
             print('Goodbye!')
             break
