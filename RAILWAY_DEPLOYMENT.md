@@ -1,42 +1,73 @@
 # Deploy Dice Bot to Railway
 
-## Step-by-Step Instructions
+## Step-by-Step Instructions for Your Own Account
 
-### 1. **Go to Railway Dashboard**
+### 1. **Prerequisites**
+   Before starting, have ready:
+   - Your own **Telegram Bot Token** from @BotFather
+   - Your own **Firebase Service Account Key** (JSON file)
+   - GitHub account with access to this repository
+   - Railway account (sign up at https://railway.app)
+
+### 2. **Go to Railway Dashboard**
    - Visit: https://railway.app
-   - Sign in with your GitHub account
-
-### 2. **Create New Project**
+   - Sign in with **your own GitHub account**
    - Click **"+ New Project"** button
-   - Click **"Deploy from GitHub"**
-   - Find and select the **Dice** repository
-   - Click **"Deploy Now"**
 
-### 3. **Set Environment Variables**
-   Once the project is created:
+### 3. **Create New Project from GitHub**
+   - Click **"Deploy from GitHub"**
+   - Find and select the **pv8cn876ys-cmd/dice** repository
+   - Click **"Deploy Now"**
+   - Railway will start building your project
+
+### 4. **Set Environment Variables**
+   Once the project is created and shows in Railway:
    - Click on your project
    - Go to **"Variables"** tab
-   - Add these variables:
+   - Add these environment variables:
 
+   #### Get Your Telegram Bot Token:
+   1. Open Telegram and search for **@BotFather**
+   2. Send `/start` then `/mybots`
+   3. Select your bot
+   4. Click **API Token**
+   5. Copy and paste it here as `TELEGRAM_BOT_TOKEN`
+
+   #### Get Your Firebase Service Account Key:
+   1. Go to [Firebase Console](https://console.firebase.google.com/)
+   2. Select your project
+   3. Click **Project Settings** (⚙️ icon)
+   4. Go to **Service Accounts** tab
+   5. Click **Generate New Private Key** (or use existing)
+   6. A JSON file downloads — open it and add these variables:
+
+   **Variables to set in Railway:**
    ```
-   TELEGRAM_BOT_TOKEN=8706599549:AAF_vovHaOhkby_nACym_hj23BluaF6cWV8
-   FIREBASE_PROJECT_ID=dice-roller-choice
-   FIREBASE_CLIENT_EMAIL=firebase-adminsdk-fbsvc@dice-roller-choice.iam.gserviceaccount.com
-   FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCxW4CH9H82DdRi\nqajPhOThfOO5VC5ANGdVN6NR5k2rmJPwVDpKwp3i+dImq4ht6mxWcYXmBI94xkNR\nHprEX9Y9P98hd6NhOJ0K8REli5GYc5zkX3v9qUzuVsm//aYr34SaTXx2dScoDVSk\nNPuqQsMfjOCPQR7wWZoNZgSYPqpirU+Cz/NPn8ZcEM8OFWOHGRzBN02d1FjhmK72\n8M1P5BgbGzXJ/Fe9HesASbu2mVhCkByjOVTwum3KGYRkRULusab3JWxp7HA7zSg3\n18K/o4IHlkI0XOKLg73PibDO+pXyB8VPZBLiQ6DM/+tpnStCeV53WVujdIeCpAX8\n1Y25Dx39AgMBAAECggEACunbQyJtqIUZ1ldjyp8+GUz+01LlhLBk0mbZzyqZiW9a\nXR3Ft395yTN/tb705nSYJYqXR3Ps4yzqDAYS1nYiQAMb5xqOTGd4LGnwmOuZcjTd\nCOWCQvXlxL3E7OI+FTGMHpWZjM2BMxL87BzRhqTUjm60C8ShU39j/iKSsk6a2/b9\nbpEecT6LL62KFYfHd542XpcOuEMkXEdRU1iMafJSRW3byfN1L23Y1m3Djxj9ZvXT\no3q0HbDnf9cYcbZMvWZfv6WnWi2uhLQuw0iZbjVisBm6LiEJzlP1EKBA+zQY0SIn\n7dV4ugVtwOTfOtu3v+ZtoxBN8rVajHCPXYhcvSrWAQKBgQDfV0uSHLO38chjkR9g\nST5kNyZWiGyVGKxhpz8c78alumEuMs6UKFF/gFtQkajw/aZKCXPp8nVCTfjahPBm\nfuLLcVvgjWlyp1ABeZLowSIl8RV9skiRhgWsuNGRiWnunbMxi+i1kNOoRNSPKEXM\nQuEV2aT+cnH0Cgmyyw+0KPIOAQKBgQDLStNVKYckmnM4fkFQ9r6+I1wfOv6R+Uig\nnmbYWjppZTWs46w1P/SBs0fInKTUhZng/cM4yXwt5cCx8lQOBJ1JLvPXEHvmZrDj\nzjIEHBEqOZzrTb3simtUvM+aYOd6OlpRdYjRiPkF6+++mnBsTlCgwkXcKsEEMYOQ\nVf1gufVH/QKBgQDD0pCKHexd3frrgfTWwaGY0NomiRtbZvTN8oxd3MZ5zP8kOJv0\nP52lg2+NJwnPsza4N62QdGvnpOILBwCZfatw4YXDT3ojcxutD2GF/sDoL4e+XDFQ\nlwgmty3Yw3lEJLVXPereN4u9QAx3MMJyJDmipOAL0WCkrqBuSakNN9F0AQKBgFZ1\n53XD6L9PlQuE3wCxQKSbY1XBAH5S+GmflPwVO9yReAek+RvYrIPxHOmcfZoJjE2d\nf8cKIm9e1NqZxtgDbGWwu3JPh3KRYFAy5SDMUxyTTkLhWJJeuJFckCsHZcudP8Z/\nZ4Y+bDLxipCVHJVjpXUJyy59XIQNDvh3KgFWdZR9AoGAGfkMo0/VAZag2cyp+KjT\nQugqElHq3tfMDPxAjMnmJm/uQlusy88h6oJ6uN5jGSyMXN5C9ZFXQ80cCRi5LDjm\nrOHZ0ZCmQfPnzJ3UB/3YIQMFVLS9Ykl0GTAeUDhzhaJUyuDnfQbZj3fpKuXauLDn\nYzNijF8c3JKr7m0whmZTeYE=\n-----END PRIVATE KEY-----\n
+   TELEGRAM_BOT_TOKEN=your_bot_token_here
+   FIREBASE_PROJECT_ID=your_project_id
+   FIREBASE_CLIENT_EMAIL=your_service_account_email@your_project.iam.gserviceaccount.com
+   FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\n...entire key content...\n-----END PRIVATE KEY-----\n
    ```
 
-### 4. **Configure the Start Command**
+   ⚠️ **Important for FIREBASE_PRIVATE_KEY:**
+   - Copy the entire key from the JSON file
+   - Replace `\n` characters with actual newlines like this: `\n` stays as-is in Railway (it will convert automatically)
+   - Include `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----`
+
+### 5. **Configure the Start Command**
    In Railway:
    - Go to **"Settings"** tab
-   - Look for **"Start Command"**
-   - Set it to: `node telegram-bot/bot.js`
+   - Look for **"Start Command"** or **"Runtime"**
+   - Set it to: `npm start`
+   - Or manually: `node telegram-bot/bot.js`
 
-### 5. **Deploy**
+### 6. **Deploy**
    - Click **"Deploy"** button
+   - Railway will install dependencies and start your bot
    - Wait for it to complete (watch the logs)
    - You should see: ✅ Telegram bot started
 
-### 6. **Verify It's Running**
+### 7. **Verify It's Running**
    - You should see logs like: `✅ Telegram bot started - monitoring groups for Dice commands`
    - Your bot will now run **24/7 for FREE** on Railway!
 
@@ -45,20 +76,40 @@
 ## Cost
 - **FREE** - Railway gives you $5/month free credits
 - Your bot uses ~$0.50-$1/month max
-- No payment required!
+- No payment required unless you exceed free tier
 
 ## What Happens Now
 - ✅ Bot runs 24/7 in the cloud
 - ✅ Responds to "Dice" and 🎲 in Telegram groups
-- ✅ Frontend on Firebase (free)
-- ✅ Both working together
+- ✅ Stores user data in your Firebase project
+- ✅ Frontend and backend working together
 
 ---
 
 ## Troubleshooting
-If the bot doesn't start:
-1. Check the logs in Railway dashboard
-2. Verify all environment variables are set correctly
-3. Make sure TELEGRAM_BOT_TOKEN is correct
 
-Need help? Let me know!
+### Bot doesn't start?
+1. Check logs in Railway dashboard
+2. Verify all environment variables are set correctly
+3. Make sure `TELEGRAM_BOT_TOKEN` is correct (no spaces, complete)
+4. Verify `FIREBASE_PRIVATE_KEY` has proper formatting with `\n` characters
+5. Check that the repository is connected and deployed
+
+### "Cannot find token" error?
+- The `TELEGRAM_BOT_TOKEN` environment variable is not set
+- Go to Variables tab and add it from @BotFather
+
+### "Firebase credentials error"?
+- Check that `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY` are all set
+- Make sure the private key includes the `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` markers
+- Verify no extra spaces or characters
+
+---
+
+## Next Steps
+1. ✅ Connect your GitHub repo to Railway
+2. ✅ Set your environment variables in Railway dashboard
+3. ✅ Deploy and verify logs
+4. 📱 Add bot to Telegram groups and test!
+
+Need help? Check the logs in Railway dashboard for specific errors.
