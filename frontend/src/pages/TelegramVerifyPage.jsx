@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/AuthContext';
 import { db } from '../lib/firebase';
-import { doc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
 export default function TelegramVerifyPage() {
@@ -33,12 +33,11 @@ export default function TelegramVerifyPage() {
         expiresAt: new Date(Date.now() + 5 * 60000).toISOString(), // 5 minutes
       });
       
-      setGeneratedOtp(newOtp);
       setStep(2);
-      toast.success(`✅ OTP generated! Check below to see your code.`);
+      toast.success('✅ OTP requested. The bot will send it to your Telegram user ID soon.');
     } catch (err) {
-      console.error('OTP generation error:', err);
-      toast.error('Failed to generate OTP: ' + err.message);
+      console.error('OTP request error:', err);
+      toast.error('Failed to request OTP: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -47,19 +46,30 @@ export default function TelegramVerifyPage() {
   // Step 2: Verify OTP
   const verifyOtp = async () => {
     if (!otp.trim()) return toast.error('Enter the OTP');
-    if (otp.trim() !== generatedOtp) return toast.error('❌ Wrong OTP!');
     
     setLoading(true);
     try {
+      const otpRef = doc(db, 'otpVerification', user.uid);
+      const otpSnapshot = await getDoc(otpRef);
+      const otpData = otpSnapshot.data();
+
+      if (!otpData) {
+        throw new Error('OTP not found. Please request a new code.');
+      }
+      if (otpData.expiresAt && new Date(otpData.expiresAt) < new Date()) {
+        throw new Error('OTP has expired. Please request a new code.');
+      }
+      if (otp.trim() !== otpData.otp) {
+        throw new Error('Incorrect OTP. Please try again.');
+      }
+
       await updateDoc(doc(db, 'users', user.uid), {
         telegramId: telegramId.trim(),
         telegramVerified: true,
         telegramVerifiedAt: new Date().toISOString(),
       });
-      
-      // Delete OTP after verification
-      // await deleteDoc(doc(db, 'otpVerification', user.uid));
-      
+
+      await deleteDoc(otpRef);
       await refreshUserData();
       toast.success('✅ Telegram ID verified! Going to admin panel...');
       setTimeout(() => navigate('/admin'), 1000);
@@ -91,8 +101,11 @@ export default function TelegramVerifyPage() {
                 <ol style={{ marginTop: '0.5rem', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
                   <li>Open Telegram, search <strong>@userinfobot</strong></li>
                   <li>Send it a message</li>
-                  <li>Copy your ID number</li>
+                  <li>Copy your numeric ID number</li>
                 </ol>
+                <p style={{ marginTop: '0.75rem' }}>
+                  <strong>Important:</strong> Open <strong>@MayaDiceGamebot</strong> first and send it any message before requesting OTP.
+                </p>
               </div>
 
               <div>
@@ -108,11 +121,12 @@ export default function TelegramVerifyPage() {
               </div>
 
               <button 
+                type="button"
                 className="btn btn-primary btn-lg" 
                 onClick={sendOtpToTelegram}
                 disabled={loading}
               >
-                {loading ? '⏳ Generating OTP...' : '🔢 Generate OTP'}
+                {loading ? '⏳ Requesting OTP...' : '🔢 Request OTP'}
               </button>
 
               <button className="btn btn-secondary" onClick={() => navigate('/admin')}>
@@ -123,9 +137,9 @@ export default function TelegramVerifyPage() {
             // Step 2: Enter OTP
             <>
               <div style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)', borderRadius: '10px', padding: '1rem', fontSize: '0.9rem', color: 'var(--muted)' }}>
-                <strong style={{ color: 'var(--success)' }}>✅ OTP Generated!</strong><br/>
-                Your verification code is: <strong style={{ fontSize: '1.5rem', color: 'var(--accent)', fontFamily: 'monospace' }}>{generatedOtp}</strong><br/>
-                <small>This code expires in 5 minutes. Copy it and use it to verify.</small>
+                <strong style={{ color: 'var(--success)' }}>✅ OTP Requested!</strong><br/>
+                The bot is sending your code to the Telegram user ID you entered.<br/>
+                If it does not arrive, open <strong>@MayaDiceGamebot</strong> and send it a message, then try again.
               </div>
 
               <div>
@@ -142,6 +156,7 @@ export default function TelegramVerifyPage() {
               </div>
 
               <button 
+                type="button"
                 className="btn btn-primary btn-lg" 
                 onClick={verifyOtp}
                 disabled={loading}

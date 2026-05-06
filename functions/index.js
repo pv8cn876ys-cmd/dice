@@ -301,44 +301,34 @@ bot.onText(/\/help/, (msg) => {
   );
 });
 
-// Listen for OTP requests (Firestore listener runs continuously)
-db.collection('otpVerification').onSnapshot((snapshot) => {
-  snapshot.docChanges().forEach(async (change) => {
-    if (change.type === 'added' || change.type === 'modified') {
-      const data = change.doc.data();
-      const telegramId = data.telegramId;
-      const otp = data.otp;
-      
-      let createdAt = new Date();
-      if (data.createdAt) {
-          if (typeof data.createdAt.toDate === 'function') {
-              createdAt = data.createdAt.toDate();
-          } else if (data.createdAt._seconds) {
-              createdAt = new Date(data.createdAt._seconds * 1000);
-          } else {
-              createdAt = new Date(data.createdAt);
-          }
+// Firestore trigger for OTP verification messages
+exports.sendOtpMessage = functions.firestore
+  .document('otpVerification/{uid}')
+  .onCreate(async (snap, context) => {
+    const data = snap.data();
+    const telegramId = data?.telegramId;
+    const otp = data?.otp;
+
+    if (!telegramId || !otp) {
+      console.warn('OTP document missing telegramId or otp');
+      return null;
+    }
+
+    try {
+      await bot.sendMessage(
+        telegramId,
+        `🔐 *Dice Game Verification*\n\nYour OTP is: \`${otp}\`\n\nThis code will expire in 5 minutes.\nDo not share this code with anyone.`,
+        { parse_mode: 'Markdown' }
+      );
+      console.log(`✅ Sent OTP to user ${telegramId}`);
+    } catch (err) {
+      console.error(`❌ Failed to send OTP to ${telegramId}:`, err.message);
+      if (err.message.includes('403')) {
+        console.log(`User ${telegramId} needs to message the bot first.`);
       }
-      
-      // Only send if it's recent (within last 5 minutes)
-      if (Date.now() - createdAt.getTime() < 5 * 60 * 1000) {
-        try {
-          await bot.sendMessage(
-            telegramId, 
-            `🔐 *Dice Game Verification*\n\nYour OTP is: \`${otp}\`\n\nThis code will expire in 5 minutes.\nDo not share this code with anyone.`,
-            { parse_mode: 'Markdown' }
-          );
-          console.log(`✅ Sent OTP to user ${telegramId}`);
-        } catch (err) {
-          console.error(`❌ Failed to send OTP to ${telegramId}:`, err.message);
-          if (err.message.includes('403')) {
-             console.log(`User ${telegramId} needs to message the bot first.`);
-          }
-        }
-      }
+      throw err;
     }
   });
-});
 
 // Fetch Telegram groups for a user
 app.get('/getGroups/:uid', async (req, res) => {

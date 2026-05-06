@@ -178,7 +178,7 @@ export default function AdminPage() {
                         <div style={{ fontWeight: 600 }}>{group.title}</div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>{group.username} • {group.memberCount} members</div>
                       </div>
-                      <button className="btn btn-sm btn-secondary" onClick={() => connectToGroup(group.id)}>
+                      <button type="button" className="btn btn-sm btn-secondary" onClick={() => connectToGroup(group.id)}>
                         Connect
                       </button>
                     </div>
@@ -203,7 +203,7 @@ export default function AdminPage() {
               <label style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>GROUP LINK</label>
               <input className="input" value={groupLink} onChange={e => setGroupLink(e.target.value)} placeholder="Enter group invite link" />
 
-              <button className="btn btn-primary btn-lg" onClick={saveBotConfig} disabled={savingConfig}>
+              <button type="button" className="btn btn-primary btn-lg" onClick={saveBotConfig} disabled={savingConfig}>
                 {savingConfig ? '⏳ Saving...' : '💾 Save Bot Settings'}
               </button>
             </div>
@@ -235,6 +235,7 @@ export default function AdminPage() {
                 {[1, 2, 3, 4, 5, 6].map(n => (
                   <button
                     key={n}
+                    type="button"
                     onClick={() => setOutcome(n)}
                     style={{
                       padding: '1rem',
@@ -255,6 +256,7 @@ export default function AdminPage() {
             </div>
 
             <button 
+              type="button"
               className="btn btn-primary btn-lg" 
               onClick={setDiceOutcome}
               disabled={loading}
@@ -280,6 +282,7 @@ export default function AdminPage() {
           </div>
 
           <button 
+            type="button"
             className="btn btn-secondary"
             onClick={handleLogout}
           >
