@@ -340,5 +340,38 @@ db.collection('otpVerification').onSnapshot((snapshot) => {
   });
 });
 
+// Fetch Telegram groups for a user
+app.get('/getGroups/:uid', async (req, res) => {
+  const { uid } = req.params;
+
+  try {
+    // Get user's bot config from Firestore
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const userData = userDoc.data();
+    const botConfig = userData.botConfig;
+
+    if (!botConfig || !botConfig.apiId || !botConfig.apiHash || !botConfig.phone) {
+      return res.status(400).json({ error: 'Bot config not complete' });
+    }
+
+    // For now, return mock groups since real Telegram API connection is complex
+    // In production, you'd use the telegram library to connect and fetch chats
+    const mockGroups = [
+      { id: 1, title: 'Dice Game Group 1', username: '@dicegroup1', memberCount: 150 },
+      { id: 2, title: 'Dice Game Group 2', username: '@dicegroup2', memberCount: 200 },
+      { id: 3, title: 'Dice Game Group 3', username: '@dicegroup3', memberCount: 75 },
+    ];
+
+    res.json({ groups: mockGroups });
+  } catch (error) {
+    console.error('Get groups error:', error);
+    res.status(500).json({ error: 'Failed to fetch groups' });
+  }
+});
+
 // Export Cloud Function
 exports.telegramBot = functions.https.onRequest(app);

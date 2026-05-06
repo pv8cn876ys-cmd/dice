@@ -76,18 +76,19 @@ export default function AdminPage() {
 
     setFetchingGroups(true);
     try {
-      // Placeholder: In a real implementation, call a Firebase function to fetch groups
-      // For now, show mock groups
-      const mockGroups = [
-        { id: 1, title: 'Dice Game Group 1', username: '@dicegroup1', memberCount: 150 },
-        { id: 2, title: 'Dice Game Group 2', username: '@dicegroup2', memberCount: 200 },
-        { id: 3, title: 'Dice Game Group 3', username: '@dicegroup3', memberCount: 75 },
-      ];
-      setGroups(mockGroups);
-      toast.success('✅ Groups fetched (placeholder data)');
+      // Call Firebase function to get groups
+      const response = await fetch(`https://us-central1-dice-3fa71.cloudfunctions.net/telegramBot/getGroups/${user.uid}`);
+      const data = await response.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setGroups(data.groups || []);
+      toast.success('✅ Groups fetched successfully');
     } catch (err) {
       console.error('Fetch groups error:', err);
-      toast.error('Failed to fetch groups');
+      toast.error('Failed to fetch groups: ' + err.message);
     } finally {
       setFetchingGroups(false);
     }
