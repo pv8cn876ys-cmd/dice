@@ -18,6 +18,8 @@ export default function AdminPage() {
   const [phone, setPhone] = useState('');
   const [groupLink, setGroupLink] = useState('');
   const [savingConfig, setSavingConfig] = useState(false);
+  const [groups, setGroups] = useState([]);
+  const [fetchingGroups, setFetchingGroups] = useState(false);
 
   useEffect(() => {
     if (userData?.botConfig) {
@@ -67,6 +69,35 @@ export default function AdminPage() {
     }
   };
 
+  const fetchTelegramGroups = async () => {
+    if (!userData?.telegramVerified || !userData?.botConfig) {
+      return toast.error('Verify Telegram and save bot config first');
+    }
+
+    setFetchingGroups(true);
+    try {
+      // Placeholder: In a real implementation, call a Firebase function to fetch groups
+      // For now, show mock groups
+      const mockGroups = [
+        { id: 1, title: 'Dice Game Group 1', username: '@dicegroup1', memberCount: 150 },
+        { id: 2, title: 'Dice Game Group 2', username: '@dicegroup2', memberCount: 200 },
+        { id: 3, title: 'Dice Game Group 3', username: '@dicegroup3', memberCount: 75 },
+      ];
+      setGroups(mockGroups);
+      toast.success('✅ Groups fetched (placeholder data)');
+    } catch (err) {
+      console.error('Fetch groups error:', err);
+      toast.error('Failed to fetch groups');
+    } finally {
+      setFetchingGroups(false);
+    }
+  };
+
+  const connectToGroup = async (groupId) => {
+    // Placeholder: Implement connection logic
+    toast.info(`Connecting to group ${groupId} (placeholder)`);
+  };
+
   const setDiceOutcome = async () => {
     if (!targetTelegramId.trim()) return toast.error('Enter Telegram User ID');
     if (!/^\d{5,20}$/.test(targetTelegramId.trim())) return toast.error('Invalid Telegram User ID');
@@ -102,7 +133,7 @@ export default function AdminPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-      <div className="card" style={{ maxWidth: 700, width: '100%' }}>
+      <div className="card" style={{ maxWidth: 900, width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎲</div>
           <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Dice Control Panel</h1>
@@ -131,6 +162,30 @@ export default function AdminPage() {
               </button>
             )}
           </div>
+
+          {userData?.telegramVerified && (
+            <div style={{ display: 'grid', gap: '1rem', padding: '1.25rem', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Telegram Groups</h2>
+              <button className="btn btn-primary" onClick={fetchTelegramGroups} disabled={fetchingGroups}>
+                {fetchingGroups ? '⏳ Fetching...' : '📱 Fetch My Groups'}
+              </button>
+              {groups.length > 0 && (
+                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                  {groups.map(group => (
+                    <div key={group.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{group.title}</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>{group.username} • {group.memberCount} members</div>
+                      </div>
+                      <button className="btn btn-sm btn-secondary" onClick={() => connectToGroup(group.id)}>
+                        Connect
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <div style={{ display: 'grid', gap: '1rem', padding: '1.25rem', borderRadius: '18px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <h2 style={{ margin: 0, fontSize: '1.1rem' }}>Telegram Bot Settings</h2>
